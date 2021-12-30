@@ -1,3 +1,9 @@
+# MacOS Extended Attributes File
+.DS_Store
+._.DS_Store
+**/.DS_Store
+**/._.DS_Store
+
 # Compiled class file
 *.class
 
