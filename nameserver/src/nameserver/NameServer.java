@@ -7,11 +7,9 @@ public class NameServer {
 	private Socket socket;
 	private Map<String, Integer> Users;
 	private Integer NameServer_Port;
-	private String RegisterAgent_Address;
 
-	public NameServer(Integer NameServer_Port, String RegisterAgent_Address) {
+	public NameServer(Integer NameServer_Port) {
 		this.NameServer_Port = NameServer_Port;
-		this.RegisterAgent_Address = RegisterAgent_Address;
 		this.Users = new HashMap<String, Integer>();
 	}
 	
@@ -76,7 +74,11 @@ public class NameServer {
 				String RECOVER_Nickname = response.get("NK");
 				this.recoverPIN(RECOVER_Nickname);
 				break;
+			case "SHOW_USERS":
+				this.printUsers();
+				break;
 			default:
+				System.out.println(response.get("OP") + ": " + "command not implemented.");
 				break;
 		}
 

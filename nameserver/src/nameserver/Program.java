@@ -15,22 +15,21 @@ public class Program {
 				System.exit(0);
 			}
 			String[] commands = line.split(" ");
-			switch(commands[0]) {
+			switch(commands[0].toUpperCase()) {
 			case "HELP":
-				System.out.println("START     " + " => " + "Starts the nameserver. Syntax is START [A] [B], where [A] is the port for nameserver, [B] is register agent address in format IP:PORT");
+				System.out.println("START     " + " => " + "Starts the nameserver. Syntax is START [A], where [A] is the port for nameserver.");
 				System.out.println("STATUS    " + " => " + "If the server is running, returns the port allocated to the nameserver. Returns an error otherwise.");
 				System.out.println("RECOVER   " + " => " + "Prints the PIN given an username. Syntax is RECOVER [A], where [A] is the nickname.");
 				System.out.println("SHOW_USERS" + " => " + "Prints all users.");
 				System.out.println("SHUTDOWN  " + " => " + "Destroy the server.");
 				break;
 			case "START":
-				if(commands.length == 3) {
+				if(commands.length == 2) {
 					if(nameserver != null) {
 						System.out.println("The service is already started. Please review.");
 					} else {
 						Integer NSPort = Integer.valueOf(commands[1]);
-						String RGAddress = commands[2];
-						nameserver = new NameServer(NSPort, RGAddress);
+						nameserver = new NameServer(NSPort);
 						Socket sock = new Socket(NSPort, nameserver);
 						StartSocket(sock);	
 						
