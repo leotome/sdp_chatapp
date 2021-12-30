@@ -3,81 +3,98 @@ package nameserver;
 import java.util.*;
 
 public class NameServer {
-	
-	private Integer NS_Port;
-	private List<User> Users;
-	
-	public NameServer(Integer myPort) {
-		this.NS_Port = myPort;
-		this.Users = new ArrayList<User>();
-	}
-	
-	public String registerUser(String Username, Integer PIN) {
-		Boolean HasUsername = this.checkUsername(Username);
-		Boolean HasPIN = this.checkPIN(PIN);
-		if(HasUsername == true) {
-			return "Oops, utilizador já existe. Por favor escolha outro.";
-		} else if (HasPIN == true) {
-			return "Oops, PIN já registado a outro utilizador. Por favor escolha outro.";
-		}
-		User NewUser = new User(Username, PIN);
-		Users.add(NewUser);
-		return "{0} foi registado com sucesso.".replaceFirst("{0}", Username);
-	}
-	
-	public boolean checkUsername(String Username) {
-		for(User user : Users) {
-			Boolean UsernameIsEqual = user.getUsername() == Username;
-			if(UsernameIsEqual == true) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	public boolean checkPIN(Integer PIN) {
-		for(User user : Users) {
-			Boolean PINIsEqual = user.getPIN() == PIN;
-			if(PINIsEqual == true) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	public User queryUser(String Username) {
-		for(User user : Users) {
-			Boolean UsernameIsEqual = user.getUsername() == Username;
-			if(UsernameIsEqual == true) {
-				return user;
-			}
-		}
-		return null;
-	}
-	
-	public String printUsers() {
-		String payload = "";
-		payload += "************************" + "\n";
-		payload += "** Username ***  PIN  **" + "\n";
-		String eachUserTemplate = "** xxxxxxxx *** yyyy **";
-		for(User user : Users) {
-			if(user.getUsername().length() == 8) {
-				payload += eachUserTemplate.replaceFirst("xxxxxxxx", user.getUsername()).replaceFirst("yyyy", String.valueOf(user.getPIN()));
-			} else {
-				Integer missing = 8 - user.getUsername().length();
-				String formattedUsername = user.getUsername();
-				for(Integer i = 0 ; i < missing ; i++) {
-					formattedUsername += " ";
-				}
-				payload += eachUserTemplate.replaceFirst("xxxxxxxx", formattedUsername).replaceFirst("yyyy", String.valueOf(user.getPIN()));
-			}
-			payload += "\n";
-		}
-		payload += "************************";
-		return payload;
-	}
-	
-	
 
+	private Socket socket;
+	private Map<String, Integer> Users;
+	private Integer NameServer_Port;
+	private String RegisterAgent_Address;
+
+	public NameServer(Integer NameServer_Port, String RegisterAgent_Address) {
+		this.NameServer_Port = NameServer_Port;
+		this.RegisterAgent_Address = RegisterAgent_Address;
+		this.Users = new HashMap<String, Integer>();
+	}
+	
+	public Socket getSocket() {
+		return this.socket;
+	}	
+	
+	public void setSocket(Socket socket) {
+		this.socket = socket;
+	}
+
+	public boolean loginUser(String Nickname, Integer PIN) {
+		if(this.Users.containsKey(Nickname)) {
+			Integer PIN_User = this.Users.get(Nickname);
+			return PIN_User == PIN;
+		}
+		return false;
+	}
+	
+	public void registerUser(String Nickname, Integer PIN) {
+		this.Users.put(Nickname, PIN);
+		printDebug("User '" + Nickname + "' was registered sucessfully with PIN '" + PIN + "'");
+	}
+	
+	public Integer recoverPIN(String Nickname) {
+		printDebug("Requested PIN for User '" + Nickname + "'");
+		if(this.Users.containsKey(Nickname)) {
+			printDebug("Found PIN: '" + Nickname + "'");
+			return this.Users.get(Nickname);
+		}
+		return -1;
+	}
+
+	public void printUsers() {
+		if(this.Users.size() > 0) {
+			for(String Nickname : this.Users.keySet()) {
+				System.out.println("Nickname: " + Nickname);
+				System.out.println("PIN: " + this.Users.get(Nickname));
+			}			
+		} else {
+			System.out.println("There are no users registered.");
+		}
+		
+	}
+	
+	public void handleRequest(String sender, String request) {
+		printDebug(sender);
+		printDebug(request);
+		Map<String, String> response = this.formatRequest(request);
+		switch(response.get("OP")) {
+			case "REGISTER":
+				String REGISTER_Nickname = response.get("NK");
+				Integer REGISTER_PIN = Integer.valueOf(response.get("PW"));
+				this.registerUser(REGISTER_Nickname, REGISTER_PIN);
+				break;
+			case "LOGIN":
+				String LOGIN_Nickname = response.get("NK");
+				Integer LOGIN_PIN = Integer.valueOf(response.get("PW"));
+				this.loginUser(LOGIN_Nickname, LOGIN_PIN);
+				break;
+			case "RECOVER":
+				String RECOVER_Nickname = response.get("NK");
+				this.recoverPIN(RECOVER_Nickname);
+				break;
+			default:
+				break;
+		}
+
+	}
+	
+	public Map<String, String> formatRequest(String request){
+		Map<String, String> response = new HashMap<String, String>();
+		String[] splitted = request.replace("{", "").replace("}", "").split(",");
+		for(String item : splitted) {
+			String[] keyval = item.split("=");
+			response.put(keyval[0], keyval[1]);
+		}
+		return response;
+	}
+
+	public static void printDebug(String message) {
+		System.out.println("DEBUG: " + message);
+	}
+	
 }
 

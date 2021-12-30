@@ -10,14 +10,13 @@ public class Socket extends Thread {
 	byte[] Buffer = new byte[1024];		// Local buffer, for holding the incoming datagram
 	Integer PORT;						// Port for the Socket
 	
-	public Socket(Integer PORT) {		// Constructor, receiving "PORT" as an argument 
+	NameServer nameserver;				// NameServer Controller
+	
+	public Socket(Integer PORT, NameServer nameserver) {	// Constructor, receiving "PORT" as an argument
+		this.nameserver = nameserver;
 		this.PORT = PORT;
 	}
-	
-	public Socket() {					// Another version for the constructor, considering NO arguments
-		this.PORT = 8080;				// In that case, initialize the default port, which is 8080.
-	}	
-	
+
 	public void run() {
 		try {											  // Initializing DatagramSocket to bound a UDP Socket
 			DatagramSocket = new DatagramSocket(PORT);    // #1: It uses PORT variable to define the Socket PORT
@@ -35,7 +34,7 @@ public class Socket extends Thread {
 			Sender = DatagramPacket.getAddress();
 			String Message = new String(DatagramPacket.getData(), 0, DatagramPacket.getLength());
 			String Sender_IP = Sender.toString().substring(1);
-			System.out.println("\"" + Sender_IP + "\"" + " said: " + Message);	
+			nameserver.handleRequest(Sender_IP, Message);
 		} catch (Exception e){}
 	}
 	
