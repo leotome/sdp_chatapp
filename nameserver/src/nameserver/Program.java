@@ -6,7 +6,7 @@ public class Program {
 
 	public static void main(String[] args) {
 		NameServer nameserver = null;
-		System.out.println("Welcome to NameServer.");
+		System.out.println("Welcome to NameServer. Type HELP to see supported commands.");
 		Scanner input = new Scanner(System.in);
 		while(input.hasNextLine()) {
 			String line = input.nextLine();
