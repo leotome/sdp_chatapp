@@ -17,10 +17,13 @@ public class Program {
 			String[] commands = line.split(" ");
 			switch(commands[0].toUpperCase()) {
 			case "HELP":
+				System.out.println("");
 				System.out.println("START     " + " => " + "Starts the users agent. Syntax: START [A] [B], where [A] is the users agent, and [B] is the nameserver address in IP:PORT format.");
 				System.out.println("STATUS    " + " => " + "If the server is running, returns the port allocated to the users agent server. Returns an error otherwise.");
 				System.out.println("REQUEST   " + " => " + "Manually sends an request for the nameserver. Syntax: REQUEST [OP] [NK] [PW]");
+				System.out.println("CLEAR     " + " => " + "Clears the terminal.");
 				System.out.println("SHUTDOWN  " + " => " + "Destroy the server.");
+				System.out.println("");
 				break;
 			case "START":
 				if(commands.length == 3) {
@@ -58,13 +61,21 @@ public class Program {
 						Map<String, String> manualRequest = new HashMap<String, String>();
 						manualRequest.put("OP", commands[1]);
 						manualRequest.put("NK", commands[2]);
-						manualRequest.put("PW", commands[3]);	
+						manualRequest.put("PIN", commands[3]);	
 						registerag.sendPayload(registerag.NameserverAddress, manualRequest.toString());
 					} else {
 						System.out.println("The service is not started.");
 					}
 				} else {
 					System.out.println(commands[0] + ": " + "please specify the request.");
+				}
+				break;
+			case "CLEAR":
+				if(commands.length == 1) {
+			        System.out.print("\033[H\033[2J");
+			        System.out.flush();
+				} else {
+					System.out.println(line + ": " + "command not found");
 				}
 				break;
 			case "SHUTDOWN":
