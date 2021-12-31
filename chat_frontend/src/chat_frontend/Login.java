@@ -19,6 +19,8 @@ public class Login extends Frame {
 	Button Component_Register = new Button("Register");
 	Button Component_ForgotPIN = new Button("Forgot PIN");
 	
+	public Socket sock;
+	
 	public String RegisterAgent_Address;
 	
 	public Login() {
@@ -26,10 +28,28 @@ public class Login extends Frame {
 		this.setActionListeners();
 		this.setSize(320, 290);
 		this.GUI();
+		sock = new Socket();
+		sock.login = this;
 	}
 	
+	public void handleRequest(String sender, String request) {
+		Map<String, String> req = this.formatRequest(request);
+		switch(req.get("STATUS")) {
+			case "SUCCESS":
+				break;
+			case "FAILURE":
+				Component_Title_Label.setText(req.get("CODE") + ": " + req.get("MESSAGE"));
+				break;
+			default:
+				break;
+		}
+	}
+
 	public void sendRequest(String recipient, String payload) {
-		
+		if(ShowDebug == true) {
+			System.out.println("DEBUG: PAYLOAD = " + payload);
+		}
+		sock.sendDatagramPacket(Integer.valueOf(recipient.split(":")[1]), payload, recipient.split(":")[0]);
 	}
 	
 	public void setActionListeners() {
@@ -46,6 +66,7 @@ public class Login extends Frame {
 				}
 				
 				Map<String, String> Request = new HashMap<String, String>();
+				Request.put("APP", "FRONTEND");
 				Request.put("OP", "LOGIN");
 				Request.put("NK", Nickname);
 				Request.put("PW", PIN);
@@ -65,6 +86,7 @@ public class Login extends Frame {
 				}
 				
 				Map<String, String> Request = new HashMap<String, String>();
+				Request.put("APP", "FRONTEND");
 				Request.put("OP", "REGISTER");
 				Request.put("NK", Nickname);
 				Request.put("PW", PIN);
@@ -82,6 +104,7 @@ public class Login extends Frame {
 				}
 				
 				Map<String, String> Request = new HashMap<String, String>();
+				Request.put("APP", "FRONTEND");
 				Request.put("OP", "RECOVER");
 				Request.put("NK", Nickname);
 				sendRequest(RegisterAgent_Address, Request.toString());				
@@ -137,10 +160,18 @@ public class Login extends Frame {
 		add(P1);
 	}
 	
+	public Map<String, String> formatRequest(String request){
+		Map<String, String> response = new HashMap<String, String>();
+		String[] splitted = request.replace("{", "").replace("}", "").split(", ");
+		for(String item : splitted) {
+			String[] keyval = item.split("=");
+			response.put(keyval[0], keyval[1]);
+		}
+		return response;
+	}
+	
 	public void setDebug(Boolean a) {
 		this.ShowDebug = a;
 	}
-	
-	
 	
 }

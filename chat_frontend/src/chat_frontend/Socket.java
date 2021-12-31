@@ -10,19 +10,26 @@ public class Socket extends Thread {
 	byte[] Buffer = new byte[1024];		// Local buffer, for holding the incoming datagram
 	Integer PORT;						// Port for the Socket
 	
+	Login login;
+	Chat chat;
+	
 	public Socket(Integer PORT) {		// Constructor, receiving "PORT" as an argument 
 		this.PORT = PORT;
 	}
 	
 	public Socket() {					// Another version for the constructor, considering NO arguments
-		this.PORT = 8080;				// In that case, initialize the default port, which is 8080.
-	}	
+	}
 	
 	public void run() {
-		try {											  // Initializing DatagramSocket to bound a UDP Socket
-			DatagramSocket = new DatagramSocket(PORT);    // #1: It uses PORT variable to define the Socket PORT
-		}												  // #2: Accepts datagrams from all IPv4 addresses on this computer
-		catch(Exception e){}
+		try {											  
+			DatagramSocket = null;
+			if(PORT != null) {                             // Initializing DatagramSocket to bound a UDP Socket
+				DatagramSocket = new DatagramSocket(PORT); // #1: It uses PORT variable to define the Socket PORT
+			}                                              // #2: Accepts datagrams from all IPv4 addresses on this computer
+			if(PORT == null) {                             // Initializing DatagramSocket WITHOUT PORT
+				DatagramSocket = new DatagramSocket(); 	   // #1: It uses any available PORT to send the request.
+			}                                              // #2: Accepts datagrams from all IPv4 addresses on this computer
+		} catch(Exception e){}
 		while(true) {
 			receiveDatagramPacket();
 		}
