@@ -17,11 +17,15 @@ public class Program {
 			String[] commands = line.split(" ");
 			switch(commands[0].toUpperCase()) {
 			case "HELP":
+				System.out.println("");
 				System.out.println("START     " + " => " + "Starts the nameserver. Syntax is START [A], where [A] is the port for nameserver.");
 				System.out.println("STATUS    " + " => " + "If the server is running, returns the port allocated to the nameserver. Returns an error otherwise.");
 				System.out.println("RECOVER   " + " => " + "Prints the PIN given an username. Syntax is RECOVER [A], where [A] is the nickname.");
+				System.out.println("DEBUG     " + " => " + "Prints all debug messages to the terminal. Syntax is DEBUG [A], where [A] can be Y or N. Default is 0.");
+				System.out.println("CLEAR     " + " => " + "Clears the terminal.");
 				System.out.println("SHOW_USERS" + " => " + "Prints all users.");
 				System.out.println("SHUTDOWN  " + " => " + "Destroy the server.");
+				System.out.println("");
 				break;
 			case "START":
 				if(commands.length == 2) {
@@ -32,6 +36,7 @@ public class Program {
 						nameserver = new NameServer(NSPort);
 						Socket sock = new Socket(NSPort, nameserver);
 						StartSocket(sock);	
+						nameserver.setSocket(sock);
 						
 						System.out.println("The service was started successfully!");
 					}
@@ -58,6 +63,20 @@ public class Program {
 					System.out.println(commands[0] + ": " + "command not found");
 				}
 				break;
+			case "DEBUG":
+				if(commands.length == 2) {
+					if(nameserver != null) {
+						Boolean ShowDebug = (commands[1].equalsIgnoreCase("N")) ? false : true;
+						nameserver.ShowDebug = ShowDebug;
+						System.out.println("Server.ShowDebug is now set to " + commands[1] + " - " + String.valueOf(ShowDebug));
+					} else {
+						System.out.println("The service is not started.");
+					}
+
+				} else {
+					System.out.println(line + ": " + "command not found");
+				}
+				break;
 			case "SHOW_USERS":
 				if(commands.length == 1) {
 					if(nameserver != null) {
@@ -66,6 +85,14 @@ public class Program {
 						System.out.println("The service is not started.");
 					}
 
+				} else {
+					System.out.println(line + ": " + "command not found");
+				}
+				break;
+			case "CLEAR":
+				if(commands.length == 1) {
+			        System.out.print("\033[H\033[2J");
+			        System.out.flush();
 				} else {
 					System.out.println(line + ": " + "command not found");
 				}
