@@ -9,6 +9,10 @@ public class Program {
 		Scanner in = new Scanner(System.in);
 		System.out.print("Set address for Register Agent, in format IP:PORT => ");
 		String RegisterAgent_Address = in.nextLine();
+		
+		System.out.print("Show DEBUG messages on terminal? [Y/n] => ");
+		String ShowDebug = in.nextLine().toUpperCase();		
+		
 		in.close();
 		// STEP #1: SET ADDRESS FOR REGISTER AGENT //
 		
@@ -16,7 +20,7 @@ public class Program {
 		Login login = new Login();
 		login.RegisterAgent_Address = RegisterAgent_Address;
 		login.setVisible(true);
-		login.setDebug(true);
+		login.setDebug((ShowDebug == "N") ? false : true);
 		// STEP #2: SHOW LOGIN SCREEN //
 		
 		
