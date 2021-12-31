@@ -7,6 +7,8 @@ public class NameServer {
 	private Socket socket;
 	private Map<String, Integer> Users;
 	private Integer NameServer_Port;
+	
+	public Boolean ShowDebug = false;
 
 	public NameServer(Integer NameServer_Port) {
 		this.NameServer_Port = NameServer_Port;
@@ -29,9 +31,16 @@ public class NameServer {
 		return false;
 	}
 	
-	public void registerUser(String Nickname, Integer PIN) {
+	public String registerUser(String Nickname, Integer PIN) {
+		if(this.Users.containsKey(Nickname) == true) {
+			return "ERROR: This user already exists";
+		}
+		if(this.Users.containsValue(PIN) == true) {
+			return "ERROR: This PIN is being used";
+		}
 		this.Users.put(Nickname, PIN);
 		printDebug("User '" + Nickname + "' was registered sucessfully with PIN '" + PIN + "'");
+		return "SUCCESS: The user was created successfully.";
 	}
 	
 	public Integer recoverPIN(String Nickname) {
@@ -55,30 +64,58 @@ public class NameServer {
 		
 	}
 	
+	public void sendRequest(String address, String payload) {
+		String[] ToAddress = address.split(":");
+		printDebug("Destination: '" + address + "'");
+		printDebug("Payload to send: '" + payload + "'");
+		this.getSocket().sendDatagramPacket(Integer.valueOf(ToAddress[1]), payload, ToAddress[0]);
+	}
+	
 	public void handleRequest(String sender, String request) {
 		printDebug(sender);
 		printDebug(request);
-		Map<String, String> response = this.formatRequest(request);
-		switch(response.get("OP")) {
-			case "REGISTER":
-				String REGISTER_Nickname = response.get("NK");
-				Integer REGISTER_PIN = Integer.valueOf(response.get("PW"));
-				this.registerUser(REGISTER_Nickname, REGISTER_PIN);
+		Map<String, String> req = this.formatRequest(request);
+		Map<String, String> res = new HashMap<String, String>();
+		System.out.println(req);
+		if(req.get("Id") != null) {res.put("Id", req.get("Id"));}
+		switch(req.get("OP")) {
+			case "REGISTER":			
+				String REGISTER_Nickname = req.get("NK");
+				Integer REGISTER_PIN = Integer.valueOf(req.get("PIN"));
+				String REGISTER_Result = this.registerUser(REGISTER_Nickname, REGISTER_PIN);
+				
+				res.put("CODE", (REGISTER_Result.split(": ")[0] == "SUCCESS") ? "201" : "403");
+				res.put("STATUS", REGISTER_Result.split(": ")[0]);
+				res.put("MESSAGE", REGISTER_Result.split(": ")[1]);
+				
+				this.sendRequest(sender, res.toString());
 				break;
 			case "LOGIN":
-				String LOGIN_Nickname = response.get("NK");
-				Integer LOGIN_PIN = Integer.valueOf(response.get("PW"));
-				this.loginUser(LOGIN_Nickname, LOGIN_PIN);
+				String LOGIN_Nickname = req.get("NK");
+				Integer LOGIN_PIN = Integer.valueOf(req.get("PIN"));
+				Boolean LOGIN_Success = this.loginUser(LOGIN_Nickname, LOGIN_PIN);
+				
+				res.put("CODE", (LOGIN_Success == true) ? "200" : "403");
+				res.put("STATUS", (LOGIN_Success == true) ? "SUCCESS" : "ERROR");
+				res.put("MESSAGE", "The credentials are correct!");
+				
+				this.sendRequest(sender, res.toString());
 				break;
 			case "RECOVER":
-				String RECOVER_Nickname = response.get("NK");
-				this.recoverPIN(RECOVER_Nickname);
+				String RECOVER_Nickname = req.get("NK");
+				Integer RECOVER_PIN = this.recoverPIN(RECOVER_Nickname);
+				
+				res.put("CODE", (RECOVER_PIN != -1) ? "200" : "403");
+				res.put("STATUS", (RECOVER_PIN != -1) ? "SUCCESS" : "ERROR");
+				res.put("MESSAGE", (RECOVER_PIN != -1) ? "Your PIN is: " + RECOVER_PIN : "This user is not registered.");
+				
+				this.sendRequest(sender, res.toString());				
 				break;
 			case "SHOW_USERS":
 				this.printUsers();
 				break;
 			default:
-				System.out.println(response.get("OP") + ": " + "command not implemented.");
+				System.out.println(req.get("OP") + ": " + "command not implemented.");
 				break;
 		}
 
@@ -86,7 +123,7 @@ public class NameServer {
 	
 	public Map<String, String> formatRequest(String request){
 		Map<String, String> response = new HashMap<String, String>();
-		String[] splitted = request.replace("{", "").replace("}", "").split(",");
+		String[] splitted = request.replace("{", "").replace("}", "").split(", ");
 		for(String item : splitted) {
 			String[] keyval = item.split("=");
 			response.put(keyval[0], keyval[1]);
@@ -94,8 +131,11 @@ public class NameServer {
 		return response;
 	}
 
-	public static void printDebug(String message) {
-		System.out.println("DEBUG: " + message);
+	public void printDebug(String message) {
+		if(this.ShowDebug == true) {
+			System.out.println("DEBUG: " + message);	
+		}
+		
 	}
 	
 }
