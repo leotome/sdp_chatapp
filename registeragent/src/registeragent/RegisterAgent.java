@@ -41,9 +41,10 @@ public class RegisterAgent {
 		if(req.get("APP") == "NS") {
 			String Id = req.get("Id");
 			String PendingRequest_Recipient = (Id != null) ? this.pendingRequests.remove(Id) : null;
-			if(Id != null) {
+			if(Id == null) {
 				printDebug(req.toString());
 			} else {
+				// Tratar sucesso ou erro
 				this.sendPayload(PendingRequest_Recipient, req.toString());	
 			}
 		}
@@ -51,7 +52,7 @@ public class RegisterAgent {
 	
 	public Map<String, String> formatRequest(String request){
 		Map<String, String> response = new HashMap<String, String>();
-		String[] splitted = request.replace("{", "").replace("}", "").split(",");
+		String[] splitted = request.replace("{", "").replace("}", "").split(", ");
 		for(String item : splitted) {
 			String[] keyval = item.split("=");
 			response.put(keyval[0], keyval[1]);
