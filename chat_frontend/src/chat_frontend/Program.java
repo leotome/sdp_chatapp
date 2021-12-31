@@ -5,6 +5,24 @@ import java.util.*;
 public class Program {
 
 	public static void main(String[] args) {
+		// STEP #1: SET ADDRESS FOR REGISTER AGENT //
+		Scanner in = new Scanner(System.in);
+		System.out.print("Set address for Register Agent, in format IP:PORT => ");
+		String RegisterAgent_Address = in.nextLine();
+		in.close();
+		// STEP #1: SET ADDRESS FOR REGISTER AGENT //
+		
+		// STEP #2: SHOW LOGIN SCREEN //		
+		Login login = new Login();
+		login.RegisterAgent_Address = RegisterAgent_Address;
+		login.setVisible(true);
+		login.setDebug(true);
+		// STEP #2: SHOW LOGIN SCREEN //
+		
+		
+		//Chat chat = new Chat();
+		
+		/*
 		Scanner in = new Scanner(System.in);
 		System.out.print("Set port for this equipment => ");
 		String MyPort = in.nextLine();		
@@ -27,6 +45,7 @@ public class Program {
 			}
 		
 		}
+		*/
 	}
 	
 	public static void StartSocket(Socket sock){
