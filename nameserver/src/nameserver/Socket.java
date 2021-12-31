@@ -33,8 +33,8 @@ public class Socket extends Thread {
 			DatagramSocket.receive(DatagramPacket);
 			Sender = DatagramPacket.getAddress();
 			String Message = new String(DatagramPacket.getData(), 0, DatagramPacket.getLength());
-			String Sender_IP = Sender.toString().substring(1);
-			nameserver.handleRequest(Sender_IP, Message);
+			String Sender_Address = Sender.toString().substring(1) + ":" + DatagramPacket.getPort();
+			nameserver.handleRequest(Sender_Address, Message);
 		} catch (Exception e){}
 	}
 	
