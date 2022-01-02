@@ -21,7 +21,7 @@ public class Program {
 				System.out.println("START     " + " => " + "Starts the nameserver. Syntax is START [A], where [A] is the port for nameserver.");
 				System.out.println("STATUS    " + " => " + "If the server is running, returns the port allocated to the nameserver. Returns an error otherwise.");
 				System.out.println("RECOVER   " + " => " + "Prints the PIN given an username. Syntax is RECOVER [A], where [A] is the nickname.");
-				System.out.println("DEBUG     " + " => " + "Prints all debug messages to the terminal. Syntax is DEBUG [A], where [A] can be Y or N. Default is 0.");
+				System.out.println("DEBUG     " + " => " + "Prints all debug messages to the terminal. Syntax is DEBUG [A], where [A] can be Y or N. Default is N.");
 				System.out.println("CLEAR     " + " => " + "Clears the terminal.");
 				System.out.println("SHOW_USERS" + " => " + "Prints all users.");
 				System.out.println("SHUTDOWN  " + " => " + "Destroy the server.");
@@ -68,7 +68,7 @@ public class Program {
 					if(nameserver != null) {
 						Boolean ShowDebug = (commands[1].equalsIgnoreCase("N")) ? false : true;
 						nameserver.ShowDebug = ShowDebug;
-						System.out.println("Server.ShowDebug is now set to " + commands[1] + " - " + String.valueOf(ShowDebug));
+						System.out.println("Debug messages is now " + ((ShowDebug == true) ? "ENABLED" : "DISABLED"));
 					} else {
 						System.out.println("The service is not started.");
 					}
