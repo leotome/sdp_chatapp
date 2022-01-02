@@ -23,7 +23,6 @@ public class Program {
 		login.setDebug((ShowDebug == "N") ? false : true);
 		// STEP #2: SHOW LOGIN SCREEN //
 		
-		
 		//Chat chat = new Chat();
 		
 		/*

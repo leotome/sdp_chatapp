@@ -10,6 +10,8 @@ public class Socket extends Thread {
 	byte[] Buffer = new byte[1024];		// Local buffer, for holding the incoming datagram
 	Integer PORT;						// Port for the Socket
 	
+	private Boolean Destroy = false;
+	
 	Login login;
 	Chat chat;
 	
@@ -30,7 +32,7 @@ public class Socket extends Thread {
 				DatagramSocket = new DatagramSocket(); 	   // #1: It uses any available PORT to send the request.
 			}                                              // #2: Accepts datagrams from all IPv4 addresses on this computer
 		} catch(Exception e){}
-		while(true) {
+		while(Destroy == false) {
 			receiveDatagramPacket();
 		}
 	}
@@ -55,6 +57,10 @@ public class Socket extends Thread {
 			DatagramSocket.send(DatagramPacket);
 			
 		}catch(Exception e){}
-	}	
+	}
+	
+	public void destroy() {
+		this.Destroy = true;
+	}
 
 }

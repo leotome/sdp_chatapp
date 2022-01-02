@@ -39,6 +39,8 @@ public class Login extends Frame {
 		switch(req.get("STATUS")) {
 			case "SUCCESS":
 				Component_Title_Label.setText(req.get("CODE") + ": " + req.get("MESSAGE"));
+				
+				//sock.destroy();
 				break;
 			case "ERROR":
 				Component_Title_Label.setText(req.get("CODE") + ": " + req.get("MESSAGE"));
@@ -66,14 +68,19 @@ public class Login extends Frame {
 			public void actionPerformed(ActionEvent x){
 				String Nickname = Component_Nickname.getText();
 				String PIN = Component_PIN.getText();
-				
-				Map<String, String> Request = new HashMap<String, String>();
-				Request.put("APP", "FRONTEND");
-				Request.put("OP", "LOGIN");
-				Request.put("NK", Nickname);
-				Request.put("PIN", PIN);
-				
-				sendRequest(RegisterAgent_Address, Request.toString());
+				if(PIN.matches("[0-9]+") == true) {
+					Map<String, String> Request = new HashMap<String, String>();
+					Request.put("APP", "FRONTEND");
+					Request.put("OP", "LOGIN");
+					Request.put("NK", Nickname);
+					Request.put("PIN", PIN);
+					
+					
+					sendRequest(RegisterAgent_Address, Request.toString());					
+				} else {
+					Component_Title_Label.setText("PIN can only contain numbers.");
+				}
+
 			}
 		});
 		this.Component_Register.addActionListener(new ActionListener() {
@@ -81,14 +88,20 @@ public class Login extends Frame {
 			public void actionPerformed(ActionEvent x){
 				String Nickname = Component_Nickname.getText();
 				String PIN = Component_PIN.getText();
-							
-				Map<String, String> Request = new HashMap<String, String>();
-				Request.put("APP", "FRONTEND");
-				Request.put("OP", "REGISTER");
-				Request.put("NK", Nickname);
-				Request.put("PIN", PIN);
 				
-				sendRequest(RegisterAgent_Address, Request.toString());
+				if(PIN.matches("[0-9]+") == true) {
+					Map<String, String> Request = new HashMap<String, String>();
+					Request.put("APP", "FRONTEND");
+					Request.put("OP", "REGISTER");
+					Request.put("NK", Nickname);
+					Request.put("PIN", PIN);
+					
+					sendRequest(RegisterAgent_Address, Request.toString());					
+				} else {
+					Component_Title_Label.setText("PIN can only contain numbers.");
+				}
+							
+
 			}
 		});
 		this.Component_ForgotPIN.addActionListener(new ActionListener() {
