@@ -20,19 +20,37 @@ public class Chat extends Frame {
 	String Nickname;
 	Integer PIN;
 	
+	// CONSTRUCTOR FOR CHAT APPLICATION
+	// IT REQUIRES THE NICKNAME, PIN, AND REGISTER AGENT ADDRESS IN ORDER TO WORK
 	public Chat(String Nickname, Integer PIN, String RegisterAgent_Address) {
 		super("Chat: " + Nickname);
-		sock = new Socket(PIN);
-		sock.chat = this;
-		sock.start();
+		// SETTING LOCAL VARIABLES
+		this.Nickname = Nickname;
+		this.PIN = PIN;		
 		this.RegisterAgent_Address = RegisterAgent_Address;
 		PendingRequests = new HashMap<String, Message>();
+		// SETTING LOCAL VARIABLES
+
+		// SETTING SOCKET FOR DATAGRAM
+		this.startSocket(PIN);
+		// SETTING SOCKET FOR DATAGRAM
+
+		// SETTING GUI
 		this.setActionListeners();
-		this.Nickname = Nickname;
-		this.PIN = PIN;
+		this.setGUI();
+		// SETTING GUI
+	}
+
+	public void setGUI(){
 		this.setSize(350, 300);
 		this.GUI();
 		this.setVisible(true);
+	}
+
+	public void startSocket(Integer Port){
+		sock = new Socket(Port);
+		sock.chat = this;
+		sock.start();
 	}
 	
 	public void setActionListeners() {
@@ -44,14 +62,10 @@ public class Chat extends Frame {
 				String Id = UUID.randomUUID().toString();
 				String Message = Component_Message.getText();
 				String Recipient = Component_Recipient.getText();
-				printDebug("EVENT SEND ID = " + Id);
-				printDebug("EVENT SEND Message = " + Message);
-				printDebug("EVENT SEND Recipient = " + Recipient);
 				
 				Message message = new Message();
 				message.Id = Id;
 				message.Message = Message;
-				message.Recipient = Recipient;
 				// STORE THE MESSAGE LOCALLY...
 				PendingRequests.put(Id, message);
 				
@@ -72,26 +86,39 @@ public class Chat extends Frame {
 		Map<String, String> req = this.formatRequest(request);
 		switch(req.get("TYPE")) {
 			case "RESOLVE":
+				// THE "RESOLVE" TYPE TAKES A COUPLE OF PARAMETERS
+				// "SUCCESS" KEY HAS AN COUNTER FOR HOW MANY ADDRESSES WERE FOUND FOR THE PROVIDED NICKNAMES
 				Integer RESOLVE_Success = Integer.valueOf(req.get("SUCCESS"));
+				// IF "SUCCESS" > 0, HANDLE SENDING THE CACHED MESSAGES
 				if(RESOLVE_Success > 0) {
+					// GET THE "ID" TO RETRIEVE CACHED MESSAGE
 					String RESOLVE_Id = req.get("Id");
 					Message RESOLVE_PendingMessage = PendingRequests.get(RESOLVE_Id);
+					// GET THE "ID" TO RETRIEVE CACHED MESSAGE
+
+					// PREPARE THE SEND PAYLOAD WITH NICKNAME AND MESSAGE
 					Map<String, String> RESOLVE_SendPayload = new HashMap<String, String>();
 					RESOLVE_SendPayload.put("TYPE", "MESSAGE");
 					RESOLVE_SendPayload.put("NK", this.Nickname);
 					RESOLVE_SendPayload.put("MESSAGE", RESOLVE_PendingMessage.Message);
+					// PREPARE THE SEND PAYLOAD WITH NICKNAME AND MESSAGE
+
+					// FOR EACH SUCCESS, SEND THE MESSAGE
 					for(String key : req.keySet()) {
 						if(key.contains("ITEM_ADDRESS") == true) {
 							String ItemAddress = req.get(key);
 							this.sendRequest(ItemAddress, RESOLVE_SendPayload.toString());
 						}
 					}
+					// FOR EACH SUCCESS, SEND THE MESSAGE
 				}
 				break;
 			case "MESSAGE":
+					// FOR RECEIVED MESSAGES, APPEND TO THE DISPLAY COMPONENT
 					String MESSAGE_NicknameSender = req.get("NK");
 					String MESSAGE_Message = req.get("MESSAGE");
 					Component_Display.append("\n" + MESSAGE_NicknameSender + ": " + MESSAGE_Message);
+					// FOR RECEIVED MESSAGES, APPEND TO THE DISPLAY COMPONENT
 				break;
 			default:
 				break;
@@ -99,17 +126,15 @@ public class Chat extends Frame {
 	}
 
 	public void sendRequest(String recipient, String payload) {
+		// SEND REQUEST
 		String IP = recipient.split(":")[0];
 		String Port = recipient.split(":")[1];
-		if(this.ShowDebug == true) {
-			printDebug("PAYLOAD = " + payload);
-			printDebug("IP = " + IP);
-			printDebug("PORT = " + Integer.valueOf(Port));
-		}
 		sock.sendDatagramPacket(Integer.valueOf(Port), payload, IP);
+		// SEND REQUEST
 	}	
 	
 	public void GUI(){
+		// GUI SETUP USING AWT JAVA
 		setBackground(Color.lightGray);
 		Component_Display.setEditable(false);
 		GridBagLayout GBL = new GridBagLayout();
@@ -124,6 +149,7 @@ public class Chat extends Frame {
 		P1C.gridwidth=GridBagConstraints.REMAINDER;
 		GBL.setConstraints(P1,P1C);
 		add(P1);
+		// GUI SETUP USING AWT JAVA
 	}
 	
 	public Map<String, String> formatRequest(String request){

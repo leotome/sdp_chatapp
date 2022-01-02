@@ -25,11 +25,21 @@ public class Login extends Frame {
 	public Login() {
 		super("Chat: Login");
 		this.setActionListeners();
-		this.setSize(320, 290);
-		this.GUI();
+		this.setGUI();
+		this.StartSocket();
+	}
+
+	public void StartSocket(){
+		// CREATE A TEMPORARY SOCKET WITHOUT SETTING PORT, SO THE SOCKET BOUNDS TO ANY AVAILABLE PORT
 		sock = new Socket();
 		sock.login = this;
 		sock.start();
+		// CREATE A TEMPORARY SOCKET WITHOUT SETTING PORT, SO THE SOCKET BOUNDS TO ANY AVAILABLE PORT
+	}
+
+	public void setGUI(){
+		this.setSize(320, 290);
+		this.GUI();
 	}
 	
 	public void handleRequest(String sender, String request) {
@@ -37,18 +47,26 @@ public class Login extends Frame {
 		Map<String, String> req = this.formatRequest(request);
 		switch(req.get("STATUS")) {
 			case "SUCCESS":
+				// THE REGISTER AGENT ANSWERS "SUCCESS" WHEN THE NAMESERVER COULD RESOLVE THE REQUEST WITHOUT FAILURE
 				Component_Title_Label.setText(req.get("CODE") + ": " + req.get("MESSAGE"));
+				// WHEN TYPE IS "RECOVER", WE JUST PRESENT THE MESSAGE
+				// ELSE, REDIRECT USER TO THE CHAT APPLICATION
 				if(req.get("TYPE").equalsIgnoreCase("RECOVER") == false) {
+					// DESTROY TEMPORARY SOCKET, IN ORDER TO CREATE THE REAL PORT ALLOCATED SOCKET
 					sock.destroy();
+					// CALL CHAT APPLICATION FRONTEND WITH ALL REQUIRED PARAMETERS
 					String UserNickname = req.get("NK");
 					Integer UserPIN = Integer.valueOf(req.get("PIN"));
 					Chat chat = new Chat(UserNickname, UserPIN, this.RegisterAgent_Address);
 					chat.setDebug(ShowDebug);
 					this.setVisible(false);	
 				}
+				// THE REGISTER AGENT ANSWERS "SUCCESS" WHEN THE NAMESERVER COULD RESOLVE THE REQUEST WITHOUT FAILURE
 				break;
 			case "ERROR":
+				// THE REGISTER AGENT ANSWERS "ERROR" WHEN THE NAMESERVER COULD NOT RESOLVE THE REQUEST
 				Component_Title_Label.setText(req.get("CODE") + ": " + req.get("MESSAGE"));
+				// THE REGISTER AGENT ANSWERS "ERROR" WHEN THE NAMESERVER COULD NOT RESOLVE THE REQUEST
 				break;
 			default:
 				break;
@@ -58,15 +76,12 @@ public class Login extends Frame {
 	public void sendRequest(String recipient, String payload) {
 		String IP = recipient.split(":")[0];
 		String Port = recipient.split(":")[1];
-		if(ShowDebug == true) {
-			printDebug("PAYLOAD = " + payload);
-			printDebug("IP = " + IP);
-			printDebug("PORT = " + Integer.valueOf(Port));
-		}
 		sock.sendDatagramPacket(Integer.valueOf(Port), payload, IP);
 	}
 	
 	public void setActionListeners() {
+		// THE ACTION LISTENERS FOR THIS COMPONENT ARE RATHER COMPLEX.
+		// THERE ARE 3 BUTTONS, SO 3 ACTION LISTENERS ARE NEEDED
 		this.Component_Login.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent x){
@@ -124,6 +139,7 @@ public class Login extends Frame {
 		});
 	}
 	
+	// TRICK TO HAVE PERFECTLY ALIGNED PANELS, WITH COMPLEX COLUMNS AND LINES
 	public Panel GUI_setFieldsPanel() {
 		Panel NicknamePanel = new Panel();
 		NicknamePanel.setLayout(new BorderLayout(5,5));
@@ -149,7 +165,8 @@ public class Login extends Frame {
 		Buttons.add("East",Component_Register);
 		Buttons.add("South",Component_ForgotPIN);
 		return Buttons;
-	}	
+	}
+	// TRICK TO HAVE PERFECTLY ALIGNED PANELS, WITH COMPLEX COLUMNS AND LINES
 
 	public void GUI() {
 		setBackground(Color.lightGray);
