@@ -4,6 +4,8 @@ import java.util.*;
 
 public class RegisterAgent {
 	
+	Boolean ShowDebug = false;
+	
 	Integer Port;
 	String NameserverAddress;
 	Socket socket;
@@ -59,8 +61,10 @@ public class RegisterAgent {
 		return response;
 	}
 
-	public static void printDebug(String message) {
-		System.out.println("DEBUG: " + message);
+	public void printDebug(String message) {
+		if(ShowDebug == true) {
+			System.out.println("DEBUG: " + message);	
+		}
 	}	
 
 }

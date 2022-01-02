@@ -21,6 +21,7 @@ public class Program {
 				System.out.println("START     " + " => " + "Starts the users agent. Syntax: START [A] [B], where [A] is the users agent, and [B] is the nameserver address in IP:PORT format.");
 				System.out.println("STATUS    " + " => " + "If the server is running, returns the port allocated to the users agent server. Returns an error otherwise.");
 				System.out.println("REQUEST   " + " => " + "Manually sends an request for the nameserver. Syntax: REQUEST [OP] [NK] [PW]");
+				System.out.println("DEBUG     " + " => " + "Prints all debug messages to the terminal. Syntax is DEBUG [A], where [A] can be Y or N. Default is N.");
 				System.out.println("CLEAR     " + " => " + "Clears the terminal.");
 				System.out.println("SHUTDOWN  " + " => " + "Destroy the server.");
 				System.out.println("");
@@ -68,6 +69,20 @@ public class Program {
 					}
 				} else {
 					System.out.println(commands[0] + ": " + "please specify the request.");
+				}
+				break;
+			case "DEBUG":
+				if(commands.length == 2) {
+					if(registerag != null) {
+						Boolean ShowDebug = (commands[1].equalsIgnoreCase("N")) ? false : true;
+						registerag.ShowDebug = ShowDebug;
+						System.out.println("Debug messages is now " + ((ShowDebug == true) ? "ENABLED" : "DISABLED"));
+
+					} else {
+						System.out.println("The service is not started.");
+					}
+				} else {
+					System.out.println(commands[0] + ": " + "command not found");
 				}
 				break;
 			case "CLEAR":
