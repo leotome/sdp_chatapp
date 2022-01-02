@@ -72,10 +72,10 @@ public class NameServer {
 	}
 	
 	public void handleRequest(String sender, String request) {
-		printDebug(sender);
-		printDebug(request);
+		printDebug("Received DATAGRAM from '" + sender + "', with PAYLOAD '" + request + "'");
 		Map<String, String> req = this.formatRequest(request);
 		Map<String, String> res = new HashMap<String, String>();
+		res.put("APP", "NS");
 		System.out.println(req);
 		if(req.get("Id") != null) {res.put("Id", req.get("Id"));}
 		switch(req.get("OP")) {

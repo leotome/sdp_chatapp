@@ -30,14 +30,17 @@ public class Login extends Frame {
 		this.GUI();
 		sock = new Socket();
 		sock.login = this;
+		sock.start();
 	}
 	
 	public void handleRequest(String sender, String request) {
+		printDebug("Received DATAGRAM from '" + sender + "', with PAYLOAD '" + request + "'");
 		Map<String, String> req = this.formatRequest(request);
 		switch(req.get("STATUS")) {
 			case "SUCCESS":
+				Component_Title_Label.setText(req.get("CODE") + ": " + req.get("MESSAGE"));
 				break;
-			case "FAILURE":
+			case "ERROR":
 				Component_Title_Label.setText(req.get("CODE") + ": " + req.get("MESSAGE"));
 				break;
 			default:
@@ -46,10 +49,15 @@ public class Login extends Frame {
 	}
 
 	public void sendRequest(String recipient, String payload) {
+		String IP = recipient.split(":")[0];
+		String Port = recipient.split(":")[1];
 		if(ShowDebug == true) {
-			System.out.println("DEBUG: PAYLOAD = " + payload);
+			printDebug("PAYLOAD = " + payload);
+			printDebug("IP = " + IP);
+			printDebug("PORT = " + Integer.valueOf(Port));
 		}
-		sock.sendDatagramPacket(Integer.valueOf(recipient.split(":")[1]), payload, recipient.split(":")[0]);
+		
+		sock.sendDatagramPacket(Integer.valueOf(Port), payload, IP);
 	}
 	
 	public void setActionListeners() {
@@ -59,17 +67,12 @@ public class Login extends Frame {
 				String Nickname = Component_Nickname.getText();
 				String PIN = Component_PIN.getText();
 				
-				if(ShowDebug == true) {
-					System.out.println("DEBUG: LOGIN");
-					System.out.println("DEBUG: Nickname = " + Nickname);
-					System.out.println("DEBUG: PIN = " + PIN);					
-				}
-				
 				Map<String, String> Request = new HashMap<String, String>();
 				Request.put("APP", "FRONTEND");
 				Request.put("OP", "LOGIN");
 				Request.put("NK", Nickname);
-				Request.put("PW", PIN);
+				Request.put("PIN", PIN);
+				
 				sendRequest(RegisterAgent_Address, Request.toString());
 			}
 		});
@@ -78,18 +81,13 @@ public class Login extends Frame {
 			public void actionPerformed(ActionEvent x){
 				String Nickname = Component_Nickname.getText();
 				String PIN = Component_PIN.getText();
-				
-				if(ShowDebug == true) {
-					System.out.println("DEBUG: REGISTER");
-					System.out.println("DEBUG: Nickname = " + Nickname);
-					System.out.println("DEBUG: PIN = " + PIN);					
-				}
-				
+							
 				Map<String, String> Request = new HashMap<String, String>();
 				Request.put("APP", "FRONTEND");
 				Request.put("OP", "REGISTER");
 				Request.put("NK", Nickname);
-				Request.put("PW", PIN);
+				Request.put("PIN", PIN);
+				
 				sendRequest(RegisterAgent_Address, Request.toString());
 			}
 		});
@@ -97,16 +95,12 @@ public class Login extends Frame {
 			@Override
 			public void actionPerformed(ActionEvent x){
 				String Nickname = Component_Nickname.getText();
-				
-				if(ShowDebug == true) {
-					System.out.println("DEBUG: FORGOT PIN");
-					System.out.println("DEBUG: Nickname = " + Nickname);					
-				}
-				
+							
 				Map<String, String> Request = new HashMap<String, String>();
 				Request.put("APP", "FRONTEND");
 				Request.put("OP", "RECOVER");
 				Request.put("NK", Nickname);
+				
 				sendRequest(RegisterAgent_Address, Request.toString());				
 				
 			}
@@ -173,5 +167,11 @@ public class Login extends Frame {
 	public void setDebug(Boolean a) {
 		this.ShowDebug = a;
 	}
+	
+	public void printDebug(String message) {
+		if(this.ShowDebug == true) {
+			System.out.println("DEBUG: " + message);	
+		}
+	}		
 	
 }

@@ -30,21 +30,20 @@ public class RegisterAgent {
 	}
 	
 	public void handleRequest(String sender, String request) {
-		printDebug(sender);
-		printDebug(request);
+		printDebug("Received DATAGRAM from '" + sender + "', with PAYLOAD '" + request + "'");
 		Map<String, String> req = this.formatRequest(request);
-		if(req.get("APP") == "FRONTEND") {
+		if(req.get("APP").equalsIgnoreCase("FRONTEND")) {
 			String Id = UUID.randomUUID().toString();
 			req.put("Id", Id);
+			this.pendingRequests.put(Id, sender);
 			this.sendPayload(this.NameserverAddress, req.toString());			
 		}
-		if(req.get("APP") == "NS") {
+		if(req.get("APP").equalsIgnoreCase("NS")) {
 			String Id = req.get("Id");
 			String PendingRequest_Recipient = (Id != null) ? this.pendingRequests.remove(Id) : null;
 			if(Id == null) {
 				printDebug(req.toString());
 			} else {
-				// Tratar sucesso ou erro
 				this.sendPayload(PendingRequest_Recipient, req.toString());	
 			}
 		}

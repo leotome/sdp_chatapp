@@ -42,7 +42,9 @@ public class Socket extends Thread {
 			Sender = DatagramPacket.getAddress();
 			String Message = new String(DatagramPacket.getData(), 0, DatagramPacket.getLength());
 			String Sender_IP = Sender.toString().substring(1);
-			System.out.println("\"" + Sender_IP + "\"" + " said: " + Message);	
+			if(login != null) {
+				login.handleRequest(Sender_IP, Message);
+			}
 		} catch (Exception e){}
 	}
 	

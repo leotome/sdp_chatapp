@@ -47,7 +47,7 @@ public class Program {
 			case "STATUS":
 				if(commands.length == 1) {
 					if(registerag != null) {
-						//System.out.println("Port: " + registerag.getSocket().PORT);
+						System.out.println("Port: " + registerag.getSocket().PORT);
 					} else {
 						System.out.println("The service is not started.");
 					}
