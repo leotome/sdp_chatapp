@@ -24,14 +24,6 @@ public class NameServer {
 	public void setSocket(Socket socket) {
 		this.socket = socket;
 	}
-
-	public boolean loginUser(String Nickname, Integer PIN) {
-		if(this.Users.containsKey(Nickname)) {
-			Integer PIN_User = this.Users.get(Nickname);
-			return PIN_User == PIN;
-		}
-		return false;
-	}
 	
 	public void setPINPolicy() {
 		List<Integer> AllowedPINs = new ArrayList<Integer>();
@@ -56,10 +48,17 @@ public class NameServer {
 		return "SUCCESS: The user was created successfully.";
 	}
 	
+	public boolean loginUser(String Nickname, Integer PIN) {
+		if(this.Users.containsKey(Nickname)) {
+			Integer PIN_User = this.Users.get(Nickname);
+			return PIN_User.equals(PIN);
+		}
+		return false;
+	}	
+	
 	public Integer recoverPIN(String Nickname) {
 		printDebug("Requested PIN for User '" + Nickname + "'");
 		if(this.Users.containsKey(Nickname)) {
-			printDebug("Found PIN: '" + Nickname + "'");
 			return this.Users.get(Nickname);
 		}
 		return -1;
@@ -111,7 +110,7 @@ public class NameServer {
 				res.put("TYPE", "LOGIN");
 				res.put("CODE", (LOGIN_Success == true) ? "200" : "403");
 				res.put("STATUS", (LOGIN_Success == true) ? "SUCCESS" : "ERROR");
-				res.put("MESSAGE", "The credentials are correct!");
+				res.put("MESSAGE", (LOGIN_Success == true) ? "The credentials are correct!" : "Incorrect credentials or user is not registered.");
 				res.put("NK", req.get("NK"));
 				res.put("PIN", req.get("PIN"));				
 				
