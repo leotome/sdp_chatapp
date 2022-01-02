@@ -1,7 +1,6 @@
 package chat_frontend;
 
 import java.util.*;
-import java.io.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -39,8 +38,14 @@ public class Login extends Frame {
 		switch(req.get("STATUS")) {
 			case "SUCCESS":
 				Component_Title_Label.setText(req.get("CODE") + ": " + req.get("MESSAGE"));
-				
-				//sock.destroy();
+				if(req.get("TYPE").equalsIgnoreCase("RECOVER") == false) {
+					sock.destroy();
+					String UserNickname = req.get("NK");
+					Integer UserPIN = Integer.valueOf(req.get("PIN"));
+					Chat chat = new Chat(UserNickname, UserPIN, this.RegisterAgent_Address);
+					chat.setDebug(ShowDebug);
+					this.setVisible(false);	
+				}
 				break;
 			case "ERROR":
 				Component_Title_Label.setText(req.get("CODE") + ": " + req.get("MESSAGE"));
@@ -58,7 +63,6 @@ public class Login extends Frame {
 			printDebug("IP = " + IP);
 			printDebug("PORT = " + Integer.valueOf(Port));
 		}
-		
 		sock.sendDatagramPacket(Integer.valueOf(Port), payload, IP);
 	}
 	

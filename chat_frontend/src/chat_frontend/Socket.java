@@ -1,7 +1,6 @@
 package chat_frontend;
 
 import java.net.*;
-import java.util.*;
 
 public class Socket extends Thread {
 	InetAddress Sender;					// IP Address object for "Sender"
@@ -46,6 +45,8 @@ public class Socket extends Thread {
 			String Sender_IP = Sender.toString().substring(1);
 			if(login != null) {
 				login.handleRequest(Sender_IP, Message);
+			} else if (chat != null) {
+				chat.handleRequest(Sender_IP, Message);
 			}
 		} catch (Exception e){}
 	}

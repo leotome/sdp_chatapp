@@ -35,8 +35,9 @@ public class RegisterAgent {
 		printDebug("Received DATAGRAM from '" + sender + "', with PAYLOAD '" + request + "'");
 		Map<String, String> req = this.formatRequest(request);
 		if(req.get("APP").equalsIgnoreCase("FRONTEND")) {
-			String Id = UUID.randomUUID().toString();
+			String Id = (req.get("Id") == null) ? UUID.randomUUID().toString() : req.get("Id");
 			req.put("Id", Id);
+			req.put("ADDRESS", sender.split(":")[0]);
 			this.pendingRequests.put(Id, sender);
 			this.sendPayload(this.NameserverAddress, req.toString());			
 		}

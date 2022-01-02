@@ -1,7 +1,6 @@
 package registeragent;
 
 import java.net.*;
-import java.util.*;
 
 public class Socket extends Thread {
 	InetAddress Sender;					// IP Address object for "Sender"

@@ -5,15 +5,13 @@ import java.util.*;
 public class NameServer {
 
 	private Socket socket;
-	private Map<String, Integer> Users;
-	private Integer NameServer_Port;
+	private Map<String, User> Users;
 	private List<Integer> AllowedPINs;
 	
 	public Boolean ShowDebug = false;
 
-	public NameServer(Integer NameServer_Port) {
-		this.NameServer_Port = NameServer_Port;
-		this.Users = new HashMap<String, Integer>();
+	public NameServer() {
+		this.Users = new HashMap<String, User>();
 		this.setPINPolicy();
 	}
 	
@@ -33,24 +31,30 @@ public class NameServer {
 		this.AllowedPINs = AllowedPINs;
 	}
 	
-	public String registerUser(String Nickname, Integer PIN) {
+	public String registerUser(String Address, String Nickname, Integer PIN) {
 		if(this.Users.containsKey(Nickname) == true) {
 			return "ERROR: This user already exists";
 		}
-		if(this.Users.containsValue(PIN) == true) {
-			return "ERROR: This PIN is being used";
+		for(User user : this.Users.values()) {
+			if(user.PIN.equals(PIN)) {
+				return "ERROR: This PIN is being used";	
+			}
 		}
 		if(AllowedPINs.contains(PIN) == false) {
 			return "ERROR: PIN does not match policy.";
 		}
-		this.Users.put(Nickname, PIN);
+		User user = new User();
+		user.Nickname = Nickname;
+		user.PIN = PIN;
+		user.Address = Address;
+		this.Users.put(Nickname, user);
 		printDebug("User '" + Nickname + "' was registered sucessfully with PIN '" + PIN + "'");
 		return "SUCCESS: The user was created successfully.";
 	}
 	
 	public boolean loginUser(String Nickname, Integer PIN) {
 		if(this.Users.containsKey(Nickname)) {
-			Integer PIN_User = this.Users.get(Nickname);
+			Integer PIN_User = this.Users.get(Nickname).PIN;
 			return PIN_User.equals(PIN);
 		}
 		return false;
@@ -59,9 +63,29 @@ public class NameServer {
 	public Integer recoverPIN(String Nickname) {
 		printDebug("Requested PIN for User '" + Nickname + "'");
 		if(this.Users.containsKey(Nickname)) {
-			return this.Users.get(Nickname);
+			return this.Users.get(Nickname).PIN;
 		}
 		return -1;
+	}
+	
+	public Map<String, String> resolveNicknames(String[] CSV_Nicknames){
+		Map<String, String> result = new HashMap<String, String>();
+		Integer CounterAll = 0;
+		Integer CounterSuccess = 0;
+		for(String RequestedNickname : CSV_Nicknames) {
+			CounterAll++;
+			result.put("ITEM_USER-" + CounterAll, RequestedNickname);
+			if(this.Users.get(RequestedNickname) != null) {
+				result.put("ITEM_STATUS-" + CounterAll, "SUCCESS");
+				result.put("ITEM_ADDRESS-" + CounterAll, this.Users.get(RequestedNickname).Address + ":" + String.valueOf(this.Users.get(RequestedNickname).PIN));
+				CounterSuccess++;
+			} else {
+				result.put("ITEM_STATUS-" + CounterAll, "ERROR");
+			}
+		}
+		result.put("SIZEALL", String.valueOf(CounterAll));
+		result.put("SUCCESS", String.valueOf(CounterSuccess));
+		return result;
 	}
 
 	public void printUsers() {
@@ -88,10 +112,11 @@ public class NameServer {
 		res.put("APP", "NS");
 		if(req.get("Id") != null) {res.put("Id", req.get("Id"));}
 		switch(req.get("OP")) {
-			case "REGISTER":			
+			case "REGISTER":
+				String REGISTER_Address = req.get("ADDRESS").split(":")[0];
 				String REGISTER_Nickname = req.get("NK");
 				Integer REGISTER_PIN = Integer.valueOf(req.get("PIN"));
-				String REGISTER_Result = this.registerUser(REGISTER_Nickname, REGISTER_PIN);
+				String REGISTER_Result = this.registerUser(REGISTER_Address, REGISTER_Nickname, REGISTER_PIN);
 				
 				res.put("TYPE", "REGISTER");
 				res.put("CODE", (REGISTER_Result.split(": ")[0] == "SUCCESS") ? "201" : "403");
@@ -124,6 +149,17 @@ public class NameServer {
 				res.put("CODE", (RECOVER_PIN != -1) ? "200" : "403");
 				res.put("STATUS", (RECOVER_PIN != -1) ? "SUCCESS" : "ERROR");
 				res.put("MESSAGE", (RECOVER_PIN != -1) ? "Your PIN is: " + RECOVER_PIN : "This user is not registered.");
+				
+				this.sendRequest(sender, res.toString());				
+				break;
+			case "RESOLVE":
+				String RESOLVE_Nicknames = req.get("NK");
+				res.put("TYPE", "RESOLVE");
+				
+				Map<String, String> RESOLVE_result = this.resolveNicknames(RESOLVE_Nicknames.split(";"));
+				for(String key : RESOLVE_result.keySet()) {
+					res.put(key, RESOLVE_result.get(key));
+				}
 				
 				this.sendRequest(sender, res.toString());				
 				break;

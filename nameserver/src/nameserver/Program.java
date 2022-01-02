@@ -33,7 +33,7 @@ public class Program {
 						System.out.println("The service is already started. Please review.");
 					} else {
 						Integer NSPort = Integer.valueOf(commands[1]);
-						nameserver = new NameServer(NSPort);
+						nameserver = new NameServer();
 						Socket sock = new Socket(NSPort, nameserver);
 						StartSocket(sock);	
 						nameserver.setSocket(sock);
