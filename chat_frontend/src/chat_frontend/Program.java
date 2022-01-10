@@ -11,7 +11,10 @@ public class Program {
 		String RegisterAgent_Address = in.nextLine();
 		
 		System.out.print("ENABLE DEBUG MESSAGES? [y/n] => ");
-		String ShowDebug = in.nextLine().toUpperCase();		
+		String ShowDebug = in.nextLine().toUpperCase();
+		
+		System.out.print("ENABLE DES ENCRYPTION? [y/n] => ");
+		String EncryptDES = in.nextLine().toUpperCase();
 		
 		in.close();
 		// STEP #1: SET ADDRESS FOR REGISTER AGENT //
@@ -20,7 +23,8 @@ public class Program {
 		Login login = new Login();
 		login.RegisterAgent_Address = RegisterAgent_Address;
 		login.setVisible(true);
-		login.setDebug((ShowDebug == "N") ? false : true);
+		login.setDebug((ShowDebug.equalsIgnoreCase("N")) ? false : true);
+		login.setEncrypt((EncryptDES.equalsIgnoreCase("N")) ? false : true);
 		// STEP #2: SHOW LOGIN SCREEN //
 	}
 

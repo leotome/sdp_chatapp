@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 public class Login extends Frame {
 	
 	Boolean ShowDebug = false;
+	Boolean EncryptDES = false;
 	
 	Label Component_Title_Label = new Label("Welcome! To proceed, please login.");
 	Label Component_Nickname_Label = new Label("Nickname: ");
@@ -59,6 +60,7 @@ public class Login extends Frame {
 					Integer UserPIN = Integer.valueOf(req.get("PIN"));
 					Chat chat = new Chat(UserNickname, UserPIN, this.RegisterAgent_Address);
 					chat.setDebug(ShowDebug);
+					chat.setEncrypt(EncryptDES);
 					this.setVisible(false);	
 				}
 				// THE REGISTER AGENT ANSWERS "SUCCESS" WHEN THE NAMESERVER COULD RESOLVE THE REQUEST WITHOUT FAILURE
@@ -200,6 +202,10 @@ public class Login extends Frame {
 	
 	public void setDebug(Boolean a) {
 		this.ShowDebug = a;
+	}
+	
+	public void setEncrypt(Boolean a) {
+		this.EncryptDES = a;
 	}
 	
 	public void printDebug(String message) {

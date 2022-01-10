@@ -16,6 +16,7 @@ public class Chat extends Frame {
 	String RegisterAgent_Address;
 	Socket sock;
 	Boolean ShowDebug;
+	Boolean EncryptDES;
 	
 	String Nickname;
 	Integer PIN;
@@ -50,6 +51,8 @@ public class Chat extends Frame {
 	public void startSocket(Integer Port){
 		sock = new Socket(Port);
 		sock.chat = this;
+		sock.EncryptDES = this.EncryptDES;
+		sock.Addresses_to_BypassEncryption.add(this.RegisterAgent_Address);
 		sock.start();
 	}
 	
@@ -127,8 +130,8 @@ public class Chat extends Frame {
 
 	public void sendRequest(String recipient, String payload) {
 		// SEND REQUEST
-		String IP = recipient.split(":")[0];
-		String Port = recipient.split(":")[1];
+		String IP = recipient.split(":")[0].trim();
+		String Port = recipient.split(":")[1].trim();
 		sock.sendDatagramPacket(Integer.valueOf(Port), payload, IP);
 		// SEND REQUEST
 	}	
@@ -166,11 +169,17 @@ public class Chat extends Frame {
 		this.ShowDebug = a;
 	}
 	
+	public void setEncrypt(Boolean a) {
+		this.EncryptDES = a;
+		if(sock != null) {
+			sock.EncryptDES = this.EncryptDES;	
+		}
+		
+	}	
+	
 	public void printDebug(String message) {
 		if(this.ShowDebug == true) {
 			System.out.println("DEBUG: " + message);	
 		}
 	}	
-	
-
 }
