@@ -75,7 +75,6 @@ public class Socket extends Thread {
 					byte[] decrypted = this.decryptDES(DatagramPacket.getData());
 					Message = new String(decrypted);
 				}
-				System.out.println("Message => " + Message);
 				chat.handleRequest(Sender_IP, Message);
 			}
 		} catch (Exception e){
@@ -85,8 +84,8 @@ public class Socket extends Thread {
 	}
 	
 	public void sendDatagramPacket(int Port, String Message, String Recipient){
-		byte[] MessageBytes = Message.getBytes();
 		try{
+			byte[] MessageBytes = Message.getBytes();
 			Destination = InetAddress.getByName(Recipient);
 			if(this.getType().equalsIgnoreCase("LOGIN")) {
 				// DO NOTHING
@@ -126,7 +125,7 @@ public class Socket extends Thread {
 
 	// DES Encryption
 	private void setSecretKey(String Key) throws Exception {
-		byte key[] = Key.getBytes();
+		byte key[] = Key.getBytes("UTF8");
 		DESKeySpec desKeySpec = new DESKeySpec(key);
 		SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("DES");
 		SecretKey secretKey = keyFactory.generateSecret(desKeySpec);

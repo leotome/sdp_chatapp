@@ -46,18 +46,18 @@ public class Login extends Frame {
 	public void handleRequest(String sender, String request) {
 		printDebug("Received DATAGRAM from '" + sender + "', with PAYLOAD '" + request + "'");
 		Map<String, String> req = this.formatRequest(request);
-		switch(req.get("STATUS")) {
+		switch(req.get("STATUS").trim()) {
 			case "SUCCESS":
 				// THE REGISTER AGENT ANSWERS "SUCCESS" WHEN THE NAMESERVER COULD RESOLVE THE REQUEST WITHOUT FAILURE
 				Component_Title_Label.setText(req.get("CODE") + ": " + req.get("MESSAGE"));
 				// WHEN TYPE IS "RECOVER", WE JUST PRESENT THE MESSAGE
 				// ELSE, REDIRECT USER TO THE CHAT APPLICATION
-				if(req.get("TYPE").equalsIgnoreCase("RECOVER") == false) {
+				if(req.get("TYPE").trim().equalsIgnoreCase("RECOVER") == false) {
 					// DESTROY TEMPORARY SOCKET, IN ORDER TO CREATE THE REAL PORT ALLOCATED SOCKET
 					sock.destroy();
 					// CALL CHAT APPLICATION FRONTEND WITH ALL REQUIRED PARAMETERS
 					String UserNickname = req.get("NK");
-					Integer UserPIN = Integer.valueOf(req.get("PIN"));
+					Integer UserPIN = Integer.valueOf(req.get("PIN").trim());
 					Chat chat = new Chat(UserNickname, UserPIN, this.RegisterAgent_Address);
 					chat.setDebug(ShowDebug);
 					chat.setEncrypt(EncryptDES);
