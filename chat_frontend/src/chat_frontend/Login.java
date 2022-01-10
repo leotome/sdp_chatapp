@@ -52,7 +52,8 @@ public class Login extends Frame {
 				Component_Title_Label.setText(req.get("CODE") + ": " + req.get("MESSAGE"));
 				// WHEN TYPE IS "RECOVER", WE JUST PRESENT THE MESSAGE
 				// ELSE, REDIRECT USER TO THE CHAT APPLICATION
-				if(req.get("TYPE").trim().equalsIgnoreCase("RECOVER") == false) {
+				Boolean IsValid = (req.get("PIN") != null && req.get("NK") != null);
+				if(req.get("TYPE").trim().equalsIgnoreCase("RECOVER") == false && IsValid) {
 					// DESTROY TEMPORARY SOCKET, IN ORDER TO CREATE THE REAL PORT ALLOCATED SOCKET
 					sock.destroy();
 					// CALL CHAT APPLICATION FRONTEND WITH ALL REQUIRED PARAMETERS

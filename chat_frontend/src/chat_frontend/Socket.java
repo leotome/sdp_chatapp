@@ -10,7 +10,7 @@ public class Socket extends Thread {
 	InetAddress Sender;					// IP Address object for "Sender"
 	InetAddress Destination;			// IP Address object for "Destination", or "Recipient"
 	DatagramSocket DatagramSocket;		// DatagramSocket, which is a UDP Socket
-	byte[] Buffer = new byte[1024];		// Local buffer, for holding the incoming datagram
+	byte[] Buffer = new byte[1200];		// Local buffer, for holding the incoming datagram
 	Integer PORT;						// Port for the Socket
 
 	private Boolean Destroy = false;
@@ -94,7 +94,24 @@ public class Socket extends Thread {
 				if(this.bypassEncryption(Recipient, Port)) {
 					// DO NOTHING
 				} else {
-					MessageBytes = this.encryptDES(Message.getBytes());
+					// WORKAROUND!
+					// IN ORDER TO INITIALIZE DatagramPacket ON receiveDatagramPacket(), WE NEED TO INITIALIZE AN ARRAY BUFFER
+					// THE THING IS, WHEN DEALING WITH ENCRYPTION, ANY NOISE CAN PREVENT AN SUCESSFUL DECRYPTION
+					// SPECIFICALLY, THE BadPaddingException EXCEPTION, OR INVALID BYTE LENGTH
+					// TO MAKE THIS WORK, WE INCREMENT THE REMAINING BYTES IF NEEDED.
+					byte[] clearBytes = null; 
+					if(Buffer.length - MessageBytes.length > 0) {
+						clearBytes = new byte[Buffer.length - MessageBytes.length];
+					} else {
+						clearBytes = new byte[0];
+					}
+					byte[] finalArray = new byte[MessageBytes.length + clearBytes.length];
+					// USING System.arraycopy() TO INCREMENT THE BYTES AFTER THE MessageBytes END
+					System.arraycopy(MessageBytes, 0, finalArray, 0, MessageBytes.length);
+					System.arraycopy(clearBytes, 0, finalArray, MessageBytes.length, clearBytes.length);
+					// USING System.arraycopy() TO INCREMENT THE BYTES AFTER THE MessageBytes END
+					// WE CAN ENCRYPT IT NOW!
+					MessageBytes = this.encryptDES(finalArray);
 				}
 			}
 			DatagramPacket DatagramPacket = new DatagramPacket(MessageBytes, MessageBytes.length, Destination, Port);
@@ -133,14 +150,14 @@ public class Socket extends Thread {
 	}
 	// DES Encryption
 	private byte[] encryptDES(byte[] message) throws Exception {
-		Cipher desCipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
+		Cipher desCipher = Cipher.getInstance("DES/ECB/NoPadding");
 		desCipher.init(Cipher.ENCRYPT_MODE, LOCAL_KEY);
 		byte[] encodedSTR = desCipher.doFinal(message);
 		return encodedSTR;
 	}
 	// DES Encryption
 	private byte[] decryptDES(byte[] message) throws Exception {
-		Cipher desCipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
+		Cipher desCipher = Cipher.getInstance("DES/ECB/NoPadding");
 		desCipher.init(Cipher.DECRYPT_MODE, LOCAL_KEY);
 		byte[] decodedSTR = desCipher.doFinal(message);
 		return decodedSTR;
