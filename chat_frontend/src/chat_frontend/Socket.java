@@ -10,7 +10,7 @@ public class Socket extends Thread {
 	InetAddress Sender;					// IP Address object for "Sender"
 	InetAddress Destination;			// IP Address object for "Destination", or "Recipient"
 	DatagramSocket DatagramSocket;		// DatagramSocket, which is a UDP Socket
-	byte[] Buffer = new byte[1200];		// Local buffer, for holding the incoming datagram
+	byte[] Buffer = new byte[1024];		// Local buffer, for holding the incoming datagram
 	Integer PORT;						// Port for the Socket
 
 	private Boolean Destroy = false;
@@ -71,6 +71,7 @@ public class Socket extends Thread {
 				String Message = null;
 				if(this.bypassEncryption(Sender_IP, Port)) {
 					Message = new String(DatagramPacket.getData());
+					System.out.println("MESSAGE => " + Message);
 				} else {
 					byte[] decrypted = this.decryptDES(DatagramPacket.getData());
 					Message = new String(decrypted);
@@ -86,6 +87,7 @@ public class Socket extends Thread {
 	public void sendDatagramPacket(int Port, String Message, String Recipient){
 		try{
 			byte[] MessageBytes = Message.getBytes();
+			System.out.println(Recipient + ":" + Port + " - " + MessageBytes.length + " - " + Message);
 			Destination = InetAddress.getByName(Recipient);
 			if(this.getType().equalsIgnoreCase("LOGIN")) {
 				// DO NOTHING
