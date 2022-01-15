@@ -60,7 +60,7 @@ public class Program {
 				if(commands.length == 4) {
 					if(registerag != null) {
 						Map<String, String> manualRequest = new HashMap<String, String>();
-						manualRequest.put("OP", commands[1]);
+						manualRequest.put("OP", commands[1].toUpperCase());
 						manualRequest.put("NK", commands[2]);
 						manualRequest.put("PIN", commands[3]);	
 						registerag.sendPayload(registerag.NameserverAddress, manualRequest.toString());

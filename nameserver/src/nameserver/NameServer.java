@@ -152,7 +152,7 @@ public class NameServer {
 		if(req.get("Id") != null) {res.put("Id", req.get("Id"));}
 		// REQUEST HANDLER EXPECTS THE FOLLOWING OPERATIONS
 		// "REGISTER", "LOGIN", "RECOVER", "RESOLVE", "SHOW_USERS"
-		switch(req.get("OP").toUpperCase()) {
+		switch(req.get("OP")) {
 			case "REGISTER":
 				String REGISTER_Address = req.get("ADDRESS").split(":")[0];
 				String REGISTER_Nickname = req.get("NK");
