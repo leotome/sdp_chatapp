@@ -35,6 +35,7 @@ public class Socket extends Thread {
 		} catch(Exception e) {
 			System.out.println(e.getCause().getMessage());
 			System.out.println(e.getMessage());
+			e.printStackTrace();
 		}
 	}
 	
@@ -64,14 +65,15 @@ public class Socket extends Thread {
 			String Sender_IP = Sender.toString().substring(1);
 			Integer Port = DatagramPacket.getPort();
 			if(this.getType().equalsIgnoreCase("LOGIN")) {
-				String Message = new String(DatagramPacket.getData());
+				//String Message = new String(DatagramPacket.getData());
+				String Message = new String(DatagramPacket.getData(), 0, DatagramPacket.getLength());
 				login.handleRequest(Sender_IP, Message);
 			}
 			else if(this.getType().equalsIgnoreCase("CHAT")) {
 				String Message = null;
 				if(this.bypassEncryption(Sender_IP, Port)) {
-					Message = new String(DatagramPacket.getData());
-					System.out.println("MESSAGE => " + Message);
+					//Message = new String(DatagramPacket.getData());
+					Message = new String(DatagramPacket.getData(), 0, DatagramPacket.getLength());
 				} else {
 					byte[] decrypted = this.decryptDES(DatagramPacket.getData());
 					Message = new String(decrypted);
@@ -87,7 +89,6 @@ public class Socket extends Thread {
 	public void sendDatagramPacket(int Port, String Message, String Recipient){
 		try{
 			byte[] MessageBytes = Message.getBytes();
-			System.out.println(Recipient + ":" + Port + " - " + MessageBytes.length + " - " + Message);
 			Destination = InetAddress.getByName(Recipient);
 			if(this.getType().equalsIgnoreCase("LOGIN")) {
 				// DO NOTHING
